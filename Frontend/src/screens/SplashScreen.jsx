@@ -49,7 +49,7 @@ export default function SplashScreen() {
                     </View>
                 </TouchableOpacity>
 
-               
+
                 <View style={styles.featuresContainer}>
                     <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.featuresScroll}>
                         {features.map((feature, index) => (
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     },
     overlay: {
         ...StyleSheet.absoluteFillObject,
-        backgroundColor: 'rgba(0, 0, 0, 0.4)',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
     },
     contentContainer: {
         flex: 1,
@@ -92,17 +92,20 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
         marginBottom: 12,
         letterSpacing: 1,
+        textShadowColor: 'rgba(0, 0, 0, 0.5)',
+        textShadowOffset: { width: 0, height: 2 },
+        textShadowRadius: 4,
     },
     subtitle: {
         fontSize: 18,
-        color: '#E0E0E0',
+        color: '#FFFFFF',
         lineHeight: 26,
         maxWidth: '80%',
     },
     button: {
         flexDirection: 'row',
         backgroundColor: '#FFFFFF',
-        borderRadius: 100, 
+        borderRadius: 100,
         paddingVertical: 6,
         paddingHorizontal: 6,
         alignItems: 'center',
@@ -143,7 +146,7 @@ const styles = StyleSheet.create({
     featureTag: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+        backgroundColor: 'rgba(255, 255, 255, 0.2)',
         paddingVertical: 8,
         paddingHorizontal: 16,
         borderRadius: 20,
