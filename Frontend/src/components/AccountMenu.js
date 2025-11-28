@@ -110,8 +110,6 @@ const AccountMenu = ({
             .toUpperCase()
             .slice(0, 2);
     };
-
-    // Dynamic styles based on theme
     const dynamicStyles = {
         avatar: {
             backgroundColor: isDark ? '#4A5568' : '#E2E8F0',
@@ -145,7 +143,6 @@ const AccountMenu = ({
 
     return (
         <View style={styles.container}>
-            {/* Avatar Button */}
             <Pressable
                 onPress={toggleMenu}
                 style={({ pressed }) => [
@@ -172,7 +169,6 @@ const AccountMenu = ({
                 </Animated.View>
             </Pressable>
 
-            {/* Dropdown Menu Modal */}
             <Modal
                 visible={isMenuVisible}
                 transparent
@@ -218,12 +214,9 @@ const AccountMenu = ({
                                 </View>
                             </View>
 
-                            {/* Divider */}
-                            <View style={[styles.divider, dynamicStyles.divider]} />
 
-                            {/* Menu Items */}
+                            <View style={[styles.divider, dynamicStyles.divider]} />
                             <View style={styles.menuItems}>
-                                {/* Profile Button */}
                                 <Pressable
                                     onPress={handleProfilePress}
                                     style={({ pressed }) => [
@@ -236,8 +229,6 @@ const AccountMenu = ({
                                         Profile
                                     </Text>
                                 </Pressable>
-
-                                {/* Sign Out Button */}
                                 <Pressable
                                     onPress={handleSignOut}
                                     style={({ pressed }) => [
