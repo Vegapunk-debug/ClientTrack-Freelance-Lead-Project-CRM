@@ -12,6 +12,7 @@ app.get("/", (req, res) => {
     res.send("ClientTrack Backend Running...");
 });
 app.use("/auth", authRoutes);
+app.use("/user", authRoutes); // Also allow /user routes for profile updates
 app.use("/leads", leadRoutes);
 app.use("/projects", projectRoutes);
 
