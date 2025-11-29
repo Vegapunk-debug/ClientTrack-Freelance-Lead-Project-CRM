@@ -168,7 +168,17 @@ export default function ProjectButtonScreen({ navigation, route }) {
                             <TextInput
                                 style={styles.input}
                                 value={expectedValue}
-                                onChangeText={setExpectedValue}
+                                onChangeText={(text) => {
+                                    // Only allow numbers and decimal point
+                                    const numericValue = text.replace(/[^0-9.]/g, '');
+                                    // Prevent multiple decimal points
+                                    const parts = numericValue.split('.');
+                                    if (parts.length > 2) {
+                                        setExpectedValue(parts[0] + '.' + parts.slice(1).join(''));
+                                    } else {
+                                        setExpectedValue(numericValue);
+                                    }
+                                }}
                                 placeholder="Enter amount"
                                 placeholderTextColor="#9CA3AF"
                                 keyboardType="numeric"

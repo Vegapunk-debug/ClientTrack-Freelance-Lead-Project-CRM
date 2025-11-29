@@ -82,24 +82,46 @@ exports.updateProfile = async (req, res) => {
     const { name, email, phone, bio } = req.body;
     const userId = req.user.id;
 
+    console.log("Update Profile Request:", { userId, name, email, phone, bio });
+
+    // Validate required fields
+    if (!name || !name.trim()) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    if (!email || !email.trim()) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
     // Check if email is being changed and if it's already taken
-    if (email) {
-      const existingUser = await User.findOne({ email, _id: { $ne: userId } });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email already in use" });
-      }
+    const existingUser = await User.findOne({ email: email.trim(), _id: { $ne: userId } });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already in use" });
     }
 
     // Update user
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { name, email, phone, bio },
+      { 
+        name: name.trim(), 
+        email: email.trim(), 
+        phone: phone ? phone.trim() : "", 
+        bio: bio ? bio.trim() : "" 
+      },
       { new: true, runValidators: true }
     );
 
     if (!updatedUser) {
       return res.status(404).json({ message: "User not found" });
     }
+
+    console.log("Profile updated successfully:", updatedUser.email);
 
     res.json({
       message: "Profile updated successfully",
@@ -114,6 +136,18 @@ exports.updateProfile = async (req, res) => {
     });
   } catch (error) {
     console.error("Update Profile Error:", error);
-    res.status(500).json({ error: error.message });
+    
+    // Handle mongoose validation errors
+    if (error.name === 'ValidationError') {
+      const messages = Object.values(error.errors).map(err => err.message);
+      return res.status(400).json({ message: messages.join(', ') });
+    }
+    
+    // Handle duplicate key error (email)
+    if (error.code === 11000) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+    
+    res.status(500).json({ error: error.message || "Failed to update profile" });
   }
 };

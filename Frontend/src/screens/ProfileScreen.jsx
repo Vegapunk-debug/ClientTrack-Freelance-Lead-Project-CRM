@@ -97,22 +97,51 @@ export default function ProfileScreen({ navigation }) {
       return;
     }
 
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email.trim())) {
+      Alert.alert('Error', 'Please enter a valid email address');
+      return;
+    }
+
     setLoading(true);
     try {
+      console.log('Updating profile with:', { name: name.trim(), email: email.trim(), phone: phone.trim(), bio: bio.trim() });
+      
       const res = await API.put("/user/profile", {
         name: name.trim(),
         email: email.trim(),
-        phone: phone.trim(),
-        bio: bio.trim(),
+        phone: phone.trim() || "",
+        bio: bio.trim() || "",
       });
       
-      // Update context with new user data
-      updateUserData(res.data.user);
+      console.log('Profile update response:', res.data);
       
-      Alert.alert('Success', 'Profile updated successfully!');
-      setIsEditing(false);
+      if (res.data && res.data.user) {
+        // Update context with new user data
+        updateUserData(res.data.user);
+        
+        // Update local state to reflect changes
+        setName(res.data.user.name || "");
+        setEmail(res.data.user.email || "");
+        setPhone(res.data.user.phone || "");
+        setBio(res.data.user.bio || "");
+        
+        Alert.alert('Success', 'Profile updated successfully!');
+        setIsEditing(false);
+      } else {
+        throw new Error('Invalid response from server');
+      }
     } catch (err) {
-      Alert.alert('Error', err.response?.data?.message || "Update failed. Please try again.");
+      console.error('Profile update error:', err);
+      console.error('Error response:', err.response?.data);
+      
+      const errorMessage = err.response?.data?.message || 
+                          err.response?.data?.error || 
+                          err.message || 
+                          "Update failed. Please try again.";
+      
+      Alert.alert('Error', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -259,7 +288,11 @@ export default function ProfileScreen({ navigation }) {
           <TextInput
             style={[styles.input, !isEditing && styles.inputDisabled]}
             value={phone}
-            onChangeText={setPhone}
+            onChangeText={(text) => {
+              // Only allow numbers, spaces, dashes, and plus sign
+              const phoneValue = text.replace(/[^0-9+\-\s]/g, '');
+              setPhone(phoneValue);
+            }}
             editable={isEditing}
             placeholder="Add phone number"
             keyboardType="phone-pad"
