@@ -36,8 +36,13 @@ export default function AuthProvider({ children }) {
     setToken(null);
   };
 
+  const updateUserData = async (updatedUserData) => {
+    await AsyncStorage.setItem("user", JSON.stringify(updatedUserData));
+    setUser(updatedUserData);
+  };
+
   return (
-    <AuthContext.Provider value={{ user, token, loginUser, logoutUser, loading }}>
+    <AuthContext.Provider value={{ user, token, loginUser, logoutUser, updateUserData, loading }}>
       {children}
     </AuthContext.Provider>
   );

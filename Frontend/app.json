@@ -1,10 +1,10 @@
 {
   "expo": {
-    "name": "Frontend",
-    "slug": "Frontend",
+    "name": "ClientTrack",
+    "slug": "ClientTrack",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/adaptive-icon.png",
     "userInterfaceStyle": "light",
     "splash": {
       "image": "./assets/splash.png",
@@ -15,11 +15,19 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "statusBar": {
+        "barStyle": "dark-content"
+      }
     },
     "android": {
+      "package": "com.clienttrack.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#ffffff"
+      },
+      "statusBar": {
+        "barStyle": "dark-content",
         "backgroundColor": "#ffffff"
       }
     },

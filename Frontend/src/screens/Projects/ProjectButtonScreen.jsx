@@ -7,8 +7,10 @@ import {
     ScrollView,
     StyleSheet,
     Platform,
+    Alert,
 } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import API from '../../services/api';
 
 export default function ProjectButtonScreen({ navigation, route }) {
     // Auto-fill from lead if available
@@ -21,7 +23,7 @@ export default function ProjectButtonScreen({ navigation, route }) {
     const [projectType, setProjectType] = useState('Fixed Price');
     const [expectedValue, setExpectedValue] = useState('');
     const [projectStatus, setProjectStatus] = useState('Discussion');
-    const [category, setCategory] = useState('');
+    const [source, setSource] = useState('LinkedIn');
     const [followUpDate, setFollowUpDate] = useState(new Date());
     const [showDatePicker, setShowDatePicker] = useState(false);
     const [notes, setNotes] = useState('');
@@ -34,22 +36,32 @@ export default function ProjectButtonScreen({ navigation, route }) {
     };
 
     // Handle form submission
-    const handleSubmit = () => {
-        // TODO: Add API call to save project
+    const handleSubmit = async () => {
+        // Validate required fields
+        if (!clientName || !projectName || !expectedValue || !source) {
+            Alert.alert('Validation Error', 'Please fill in all required fields');
+            return;
+        }
+
+        // Map form fields to backend model
         const projectData = {
             clientName,
-            contact,
-            projectName,
-            projectType,
-            expectedValue,
-            projectStatus,
-            category,
-            followUpDate,
-            notes,
+            contactDetails: contact || 'N/A', // Backend requires this field
+            description: projectName, // projectName maps to description
+            source: source, // Must be one of: LinkedIn, Instagram, Unstop, X
+            revenue: parseFloat(expectedValue) || 0,
+            expectedTime: followUpDate, // followUpDate maps to expectedTime
+            status: projectStatus === 'Discussion' ? 'In Progress' : projectStatus, // Map Discussion to In Progress
         };
-        console.log('Project Data:', projectData);
-        // Navigate back after submission
-        navigation.goBack();
+
+        try {
+            await API.post('/projects', projectData);
+            Alert.alert('Success', 'Project created successfully');
+            navigation.goBack();
+        } catch (error) {
+            console.error('Project creation error:', error);
+            Alert.alert('Error', error.response?.data?.error || 'Failed to create project. Please try again.');
+        }
     };
 
     return (
@@ -191,24 +203,26 @@ export default function ProjectButtonScreen({ navigation, route }) {
                         </View>
 
                         <View style={styles.inputGroup}>
-                            <Text style={styles.label}>Category (optional)</Text>
+                            <Text style={styles.label}>
+                                Source <Text style={styles.required}>*</Text>
+                            </Text>
                             <View style={styles.categoryGrid}>
-                                {['Logo', 'Website', 'UI/UX', 'App', 'Other'].map((cat) => (
+                                {['LinkedIn', 'Instagram', 'Unstop', 'X'].map((src) => (
                                     <TouchableOpacity
-                                        key={cat}
+                                        key={src}
                                         style={[
                                             styles.categoryButton,
-                                            category === cat && styles.categoryButtonActive,
+                                            source === src && styles.categoryButtonActive,
                                         ]}
-                                        onPress={() => setCategory(cat)}
+                                        onPress={() => setSource(src)}
                                     >
                                         <Text
                                             style={[
                                                 styles.categoryText,
-                                                category === cat && styles.categoryTextActive,
+                                                source === src && styles.categoryTextActive,
                                             ]}
                                         >
-                                            {cat}
+                                            {src}
                                         </Text>
                                     </TouchableOpacity>
                                 ))}

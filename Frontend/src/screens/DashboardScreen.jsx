@@ -6,6 +6,7 @@ import API from "../services/api";
 export default function DashboardScreen({ navigation }) {
   const [dashboardData, setDashboardData] = useState({
     followUps: [],
+    priorityProjects: [],
     expectedRevenue: 0,
     leadsCount: 0,
     projectsCount: 0,
@@ -56,13 +57,8 @@ export default function DashboardScreen({ navigation }) {
     return `In ${days} days`;
   };
 
-  const priorityProjects = dashboardData.followUps
-    .filter(item => item.type === "project")
-    .sort((a, b) => {
-      const dateA = new Date(a.expectedTime);
-      const dateB = new Date(b.expectedTime);
-      return dateA - dateB;
-    })
+  // Use priorityProjects from backend, or fallback to filtering followUps for backward compatibility
+  const priorityProjects = (dashboardData.priorityProjects || dashboardData.followUps.filter(item => item.type === "project"))
     .slice(0, 5);
 
   return (
