@@ -88,20 +88,33 @@ exports.getDashboard = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
+    // Follow-ups for today/tomorrow/overdue (leads and projects)
+    // Includes overdue items (before today) and items due today/tomorrow
     const followUps = [
       ...leads.filter(l => {
         const followUp = new Date(l.followUpDate);
-        return followUp >= today && followUp < tomorrow;
+        return followUp < tomorrow; // Include overdue and today/tomorrow
       }).map(l => ({ ...l.toObject(), type: "lead" })),
       ...projects.filter(p => {
         const expected = new Date(p.expectedTime);
-        return expected >= today && expected < tomorrow && p.status !== "Completed";
+        return expected < tomorrow && p.status !== "Completed"; // Include overdue and today/tomorrow
       }).map(p => ({ ...p.toObject(), type: "project" }))
     ].sort((a, b) => {
       const dateA = a.type === "lead" ? new Date(a.followUpDate) : new Date(a.expectedTime);
       const dateB = b.type === "lead" ? new Date(b.followUpDate) : new Date(b.expectedTime);
-      return dateA - dateB;
+      return dateA - dateB; // Earliest dates first (overdue will appear first)
     });
+
+    // All non-completed projects for Priority Projects (sorted by earliest expectedTime)
+    // Shows ALL projects regardless of date - overdue, today, or future
+    const allUpcomingProjects = projects
+      .filter(p => p.status !== "Completed")
+      .map(p => ({ ...p.toObject(), type: "project" }))
+      .sort((a, b) => {
+        const dateA = new Date(a.expectedTime);
+        const dateB = new Date(b.expectedTime);
+        return dateA - dateB; // Sort by earliest expected time first
+      });
 
     const expectedRevenue = projects
       .filter(p => p.status !== "Completed")
@@ -109,6 +122,7 @@ exports.getDashboard = async (req, res) => {
 
     res.json({
       followUps,
+      priorityProjects: allUpcomingProjects, // All upcoming projects for Priority Projects section
       expectedRevenue,
       leadsCount: leads.length,
       projectsCount: projects.length,
