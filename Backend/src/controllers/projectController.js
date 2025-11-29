@@ -88,17 +88,11 @@ exports.getDashboard = async (req, res) => {
     const tomorrow = new Date(today);
     tomorrow.setDate(tomorrow.getDate() + 1);
 
-    // Follow-ups for today/tomorrow/overdue (leads and projects)
-    // Includes overdue items (before today) and items due today/tomorrow
+    // Follow-ups: ALL leads and non-completed projects sorted by date
+    // Shows ALL items regardless of date - overdue, today, or future
     const followUps = [
-      ...leads.filter(l => {
-        const followUp = new Date(l.followUpDate);
-        return followUp < tomorrow; // Include overdue and today/tomorrow
-      }).map(l => ({ ...l.toObject(), type: "lead" })),
-      ...projects.filter(p => {
-        const expected = new Date(p.expectedTime);
-        return expected < tomorrow && p.status !== "Completed"; // Include overdue and today/tomorrow
-      }).map(p => ({ ...p.toObject(), type: "project" }))
+      ...leads.map(l => ({ ...l.toObject(), type: "lead" })),
+      ...projects.filter(p => p.status !== "Completed").map(p => ({ ...p.toObject(), type: "project" }))
     ].sort((a, b) => {
       const dateA = a.type === "lead" ? new Date(a.followUpDate) : new Date(a.expectedTime);
       const dateB = b.type === "lead" ? new Date(b.followUpDate) : new Date(b.expectedTime);
