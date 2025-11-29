@@ -108,7 +108,17 @@ export default function AddLeadScreen({ navigation }) {
         <TextInput
           style={styles.input}
           value={estimatedRevenue}
-          onChangeText={setEstimatedRevenue}
+          onChangeText={(text) => {
+            // Only allow numbers and decimal point
+            const numericValue = text.replace(/[^0-9.]/g, '');
+            // Prevent multiple decimal points
+            const parts = numericValue.split('.');
+            if (parts.length > 2) {
+              setEstimatedRevenue(parts[0] + '.' + parts.slice(1).join(''));
+            } else {
+              setEstimatedRevenue(numericValue);
+            }
+          }}
           placeholder="Enter amount"
           placeholderTextColor="#999"
           keyboardType="numeric"
