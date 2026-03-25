@@ -1,6 +1,6 @@
 import axios from "axios";
 import Constants from 'expo-constants';
-import * as SecureStore from "expo-secure-store";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const ApiURL = () => {
   const debuggerHost = Constants.expoConfig?.hostUri;
@@ -16,9 +16,8 @@ const API = axios.create({
   headers: { 'Content-Type': "application/json" }
 });
 
-// Interceptor to attach token to all requests
 API.interceptors.request.use(async (config) => {
-  const token = await SecureStore.getItemAsync("token");
+  const token = await AsyncStorage.getItem("token");
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
